@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 商品图片共享表 -->
+<mapper namespace="com.example.product.repository.ProductImageMapper">
+
+    <resultMap id="imageMap" type="com.example.product.model.ProductImage">
+        <id     property="id"           column="id"/>
+        <result property="productId"    column="product_id"/>
+        <result property="imageType"     column="image_type"/>
+        <result property="mimeType"      column="mime_type"/>
+        <result property="imageBase64"  column="image_base64"/>
+        <result property="sort"          column="sort"/>
+        <result property="createdAt"     column="created_at"/>
+    </resultMap>
+
+    <insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO product_image
+            (product_id, image_type, mime_type, image_base64, sort, created_at)
+        VALUES
+        <foreach collection="images" item="img" separator=",">
+            (#{img.productId}, #{img.imageType}, #{img.mimeType},
+             #{img.imageBase64}, #{img.sort}, #{img.createdAt})
+        </foreach>
+    </insert>
+
+    <delete id="deleteByProductId">
+        DELETE FROM product_image WHERE product_id = #{productId}
+    </delete>
+
+    <select id="selectByProductId" resultMap="imageMap">
+        SELECT id, product_id, image_type, mime_type, image_base64, sort, created_at
+        FROM product_image
+        WHERE product_id = #{productId}
+        ORDER BY image_type, sort
+    </select>
+
+    <select id="selectMainImage" resultMap="imageMap">
+        SELECT id, product_id, image_type, mime_type, image_base64, sort, created_at
+        FROM product_image
+        WHERE product_id = #{productId}
+          AND image_type = 1
+        LIMIT 1
+    </select>
+
+    <select id="selectSubImages" resultMap="imageMap">
+        SELECT id, product_id, image_type, mime_type, image_base64, sort, created_at
+        FROM product_image
+        WHERE product_id = #{productId}
+          AND image_type = 2
+        ORDER BY sort
+    </select>
+
+</mapper>

@@ -1,0 +1,46 @@
+server:
+  port: 8080
+  tomcat:
+    # 一次发布最多 1 主图 + 5 副图，每张解码后 2MB，编码后约 2.7MB，合计约 16MB
+    # 预留余量后设为 32MB
+    max-http-form-post-size: 32MB
+    max-swallow-size: 32MB
+
+spring:
+  application:
+    name: product
+  # JSON 请求体大小通过 multipart 限制不生效，需配合 Tomcat 的 max-http-form-post-size
+  servlet:
+    multipart:
+      max-file-size: 32MB
+      max-request-size: 32MB
+  # MySQL 配置：地址/端口/用户名/密码不写入代码，使用环境变量
+  datasource:
+    url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:3306}/${DB_NAME:gifshow}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+# MyBatis 配置：mapper XML 位置、下划线转驼峰、调试日志
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    default-statement-timeout: 10
+    # 本地开发可开启日志，生产环境关闭
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# Snowflake ID 生成器：workerId / datacenterId
+# 多实例部署时必须为每个实例分配不同 workerId
+snowflake:
+  worker-id: ${SNOWFLAKE_WORKER_ID:1}
+  datacenter-id: ${SNOWFLAKE_DATACENTER_ID:1}
+
+logging:
+  level:
+    com.example.product: INFO
+    org.mybatis: WARN

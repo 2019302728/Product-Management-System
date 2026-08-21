@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 三张商品扩展表统一管理 -->
+<mapper namespace="com.example.product.repository.ProductExtensionMapper">
+
+    <!-- ================= 实物（product_type=1） ================= -->
+
+    <resultMap id="physicalMap" type="com.example.product.model.ProductPhysicalExt">
+        <id     property="productId"      column="product_id"/>
+        <result property="stock"          column="stock"/>
+        <result property="deliveryType"   column="delivery_type"/>
+        <result property="refundRule"     column="refund_rule"/>
+        <result property="extensionJson"  column="extension_json"/>
+        <result property="createdAt"      column="created_at"/>
+        <result property="updatedAt"      column="updated_at"/>
+    </resultMap>
+
+    <insert id="insertPhysical" parameterType="com.example.product.model.ProductPhysicalExt">
+        INSERT INTO product_physical_ext
+            (product_id, stock, delivery_type, refund_rule, extension_json,
+             created_at, updated_at)
+        VALUES
+            (#{productId}, #{stock}, #{deliveryType}, #{refundRule}, #{extensionJson},
+             #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="updatePhysical" parameterType="com.example.product.model.ProductPhysicalExt">
+        UPDATE product_physical_ext
+        SET stock          = #{stock},
+            delivery_type  = #{deliveryType},
+            refund_rule    = #{refundRule},
+            updated_at     = #{updatedAt}
+        WHERE product_id = #{productId}
+    </update>
+
+    <select id="selectPhysical" resultMap="physicalMap">
+        SELECT product_id, stock, delivery_type, refund_rule, extension_json,
+               created_at, updated_at
+        FROM product_physical_ext
+        WHERE product_id = #{productId}
+    </select>
+
+    <delete id="deletePhysical">
+        DELETE FROM product_physical_ext WHERE product_id = #{productId}
+    </delete>
+
+    <!-- ================= 虚拟（product_type=2） ================= -->
+
+    <resultMap id="virtualMap" type="com.example.product.model.ProductVirtualExt">
+        <id     property="productId"         column="product_id"/>
+        <result property="validDays"         column="valid_days"/>
+        <result property="verificationType"  column="verification_type"/>
+        <result property="storeIds"           column="store_ids"
+                typeHandler="com.example.product.repository.typehandler.LongListJsonTypeHandler"/>
+        <result property="extensionJson"      column="extension_json"/>
+        <result property="createdAt"          column="created_at"/>
+        <result property="updatedAt"          column="updated_at"/>
+    </resultMap>
+
+    <insert id="insertVirtual" parameterType="com.example.product.model.ProductVirtualExt">
+        INSERT INTO product_virtual_ext
+            (product_id, valid_days, verification_type, store_ids, extension_json,
+             created_at, updated_at)
+        VALUES
+            (#{productId}, #{validDays}, #{verificationType},
+             #{storeIds, typeHandler=com.example.product.repository.typehandler.LongListJsonTypeHandler},
+             #{extensionJson}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="updateVirtual" parameterType="com.example.product.model.ProductVirtualExt">
+        UPDATE product_virtual_ext
+        SET valid_days          = #{validDays},
+            verification_type   = #{verificationType},
+            store_ids            = #{storeIds, typeHandler=com.example.product.repository.typehandler.LongListJsonTypeHandler},
+            updated_at           = #{updatedAt}
+        WHERE product_id = #{productId}
+    </update>
+
+    <select id="selectVirtual" resultMap="virtualMap">
+        SELECT product_id, valid_days, verification_type, store_ids, extension_json,
+               created_at, updated_at
+        FROM product_virtual_ext
+        WHERE product_id = #{productId}
+    </select>
+
+    <delete id="deleteVirtual">
+        DELETE FROM product_virtual_ext WHERE product_id = #{productId}
+    </delete>
+
+    <!-- ================= 素材（product_type=3） ================= -->
+
+    <resultMap id="materialMap" type="com.example.product.model.ProductMaterialExt">
+        <id     property="productId"       column="product_id"/>
+        <result property="mediaType"       column="media_type"/>
+        <result property="mediaUrl"        column="media_url"/>
+        <result property="licenseEndTime" column="license_end_time"/>
+        <result property="extensionJson"  column="extension_json"/>
+        <result property="createdAt"       column="created_at"/>
+        <result property="updatedAt"       column="updated_at"/>
+    </resultMap>
+
+    <insert id="insertMaterial" parameterType="com.example.product.model.ProductMaterialExt">
+        INSERT INTO product_material_ext
+            (product_id, media_type, media_url, license_end_time, extension_json,
+             created_at, updated_at)
+        VALUES
+            (#{productId}, #{mediaType}, #{mediaUrl}, #{licenseEndTime}, #{extensionJson},
+             #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="updateMaterial" parameterType="com.example.product.model.ProductMaterialExt">
+        UPDATE product_material_ext
+        SET media_type        = #{mediaType},
+            media_url         = #{mediaUrl},
+            license_end_time = #{licenseEndTime},
+            updated_at        = #{updatedAt}
+        WHERE product_id = #{productId}
+    </update>
+
+    <select id="selectMaterial" resultMap="materialMap">
+        SELECT product_id, media_type, media_url, license_end_time, extension_json,
+               created_at, updated_at
+        FROM product_material_ext
+        WHERE product_id = #{productId}
+    </select>
+
+    <delete id="deleteMaterial">
+        DELETE FROM product_material_ext WHERE product_id = #{productId}
+    </delete>
+
+</mapper>

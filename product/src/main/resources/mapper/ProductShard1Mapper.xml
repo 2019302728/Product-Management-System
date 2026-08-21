@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- product_1 分片：creator_id 为奇数时路由 -->
+<mapper namespace="com.example.product.repository.ProductShard1Mapper">
+
+    <resultMap id="productListMap" type="com.example.product.dto.ProductListItem">
+        <id     property="productId"   column="product_id"/>
+        <result property="creatorId"   column="creator_id"/>
+        <result property="productType" column="product_type"/>
+        <result property="title"       column="title"/>
+        <result property="shortTitle"  column="short_title"/>
+        <result property="price"       column="price"/>
+        <result property="status"      column="status"/>
+        <result property="createdAt"   column="created_at"/>
+        <result property="updatedAt"   column="updated_at"/>
+    </resultMap>
+
+    <resultMap id="productMap" type="com.example.product.model.Product">
+        <id     property="productId"   column="product_id"/>
+        <result property="creatorId"   column="creator_id"/>
+        <result property="productType" column="product_type"/>
+        <result property="title"       column="title"/>
+        <result property="shortTitle"  column="short_title"/>
+        <result property="price"       column="price"/>
+        <result property="detail"      column="detail"/>
+        <result property="status"      column="status"/>
+        <result property="createdAt"   column="created_at"/>
+        <result property="updatedAt"   column="updated_at"/>
+        <result property="deletedAt"   column="deleted_at"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.product.model.Product">
+        INSERT INTO product_1
+            (product_id, creator_id, product_type, title, short_title,
+             price, detail, status, created_at, updated_at, deleted_at)
+        VALUES
+            (#{productId}, #{creatorId}, #{productType}, #{title}, #{shortTitle},
+             #{price}, #{detail}, #{status}, #{createdAt}, #{updatedAt}, #{deletedAt})
+    </insert>
+
+    <select id="selectByCreatorAndId" resultMap="productMap">
+        SELECT product_id, creator_id, product_type, title, short_title,
+               price, detail, status, created_at, updated_at, deleted_at
+        FROM product_1
+        WHERE creator_id = #{creatorId}
+          AND product_id = #{productId}
+          AND deleted_at IS NULL
+    </select>
+
+    <select id="selectListByCreator" resultMap="productListMap">
+        SELECT product_id, creator_id, product_type, title, short_title,
+               price, status, created_at, updated_at
+        FROM product_1
+        WHERE creator_id = #{creatorId}
+          AND deleted_at IS NULL
+        ORDER BY updated_at DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countByCreator" resultType="long">
+        SELECT COUNT(*)
+        FROM product_1
+        WHERE creator_id = #{creatorId}
+          AND deleted_at IS NULL
+    </select>
+
+    <update id="update" parameterType="com.example.product.model.Product">
+        UPDATE product_1
+        SET title        = #{title},
+            short_title  = #{shortTitle},
+            price        = #{price},
+            detail       = #{detail},
+            updated_at   = #{updatedAt}
+        WHERE product_id = #{productId}
+          AND creator_id = #{creatorId}
+          AND deleted_at IS NULL
+    </update>
+
+    <update id="updateStatus">
+        UPDATE product_1
+        SET status     = #{status},
+            updated_at = #{updatedAt}
+        WHERE product_id = #{productId}
+          AND creator_id = #{creatorId}
+          AND deleted_at IS NULL
+    </update>
+
+    <update id="softDelete">
+        UPDATE product_1
+        SET deleted_at = #{deletedAt},
+            updated_at = #{deletedAt}
+        WHERE product_id = #{productId}
+          AND creator_id = #{creatorId}
+          AND deleted_at IS NULL
+    </update>
+
+</mapper>
